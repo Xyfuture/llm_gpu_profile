@@ -21,14 +21,14 @@
     }
   },
 
-  "mounts": [
-    {
-      "source": "model_weight",
-      "target": "/model_weight",
-      "type": "bind",
-
-    }
-  ],
+//  "mounts": [
+//    {
+//      "source": "model_weight",
+//      "target": "/model_weight",
+//      "type": "bind",
+//
+//    }
+//  ],
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
@@ -36,6 +36,7 @@
     "--net=host",
     "--gpu=all",
     "--ipc=host",
+//    "-v model_weight:/model_weight"
   ]
 
 }
