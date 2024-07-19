@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-	"name": "TensorRT",
+	"name": "trtllm_profile",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"dockerFile": "Dockerfile",
 
@@ -15,28 +15,33 @@
 	// "postCreateCommand": "pip3 install --user -r requirements.txt",
 
 	// Configure tool-specific properties.
-  "customizations" : {
-    "jetbrains" : {
-      "backend" : "PyCharm"
-    }
-  },
+    // "customizations" : {
+    //  "jetbrains" : {
+    //     "backend" : "PyCharm"
+    //   }
+    // },
 
 //  "mounts": [
 //    {
 //      "source": "model_weight",
 //      "target": "/model_weight",
-//      "type": "bind",
-//
+//      "type": "volume",
+//    },
+   
+//    {
+// 	"source": "tensor_rt_workspace",
+// 	"target": "/tensor_rt_workspace",
+// 	"type": "volume",
 //    }
+
 //  ],
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
   "runArgs": [
     "--net=host",
-    "--gpu=all",
+    "--gpus=all",
     "--ipc=host",
-//    "-v model_weight:/model_weight"
   ]
 
 }

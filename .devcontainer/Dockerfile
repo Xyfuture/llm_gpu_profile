@@ -1,4 +1,4 @@
-FROM tensorrt:latest
+FROM tentrtllm_build:latest
 #LABEL authors="17280"
 
 
