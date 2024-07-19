@@ -171,7 +171,8 @@ class TRTLLMConfig(BaseModel):
         if quant_dtype:
             if not kv_cache_quant_dtype:
                 # will throw errors during validation if the type is invalid
-                kv_cache_quant_dtype = quant_dtype
+                # kv_cache_quant_dtype = quant_dtype  # remove this line，no need for kv cache quant
+                kv_cache_quant_dtype = None 
             build_config["quantization"] = {
                 "quant_algo": quant_dtype,
                 "kv_cache_quant_algo": kv_cache_quant_dtype,

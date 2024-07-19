@@ -1,4 +1,4 @@
-FROM tentrtllm_build:latest
+FROM trtllm_build:latest
 #LABEL authors="17280"
 
 

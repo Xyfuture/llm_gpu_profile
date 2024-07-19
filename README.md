@@ -4,6 +4,15 @@ Run Command
  python benchmark.py --model EleutherAI/gpt-j-6b static --isl 128 --osl 128 --batch 1
  ```
 
+quantization
+
+```bash
+python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_CHANNEL --kv-dtype float16 static --isl 128 --osl 128 --batch 1
+```
+
+
+
+
 
 
 ```bash
