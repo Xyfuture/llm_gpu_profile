@@ -92,7 +92,7 @@ class BenchmarkResults(BaseModel):
             "===========================================================\n"
             f"Throughput ({self.throughput_units}):\t{self.throughput}\n"
             f"Total Latency ({self.latency_units}):"
-            f"\t\t{self.total_latency * 1000.0:.4f}\n"
+            f"\t\t{self.total_latency:.4f}\n"
             f"First Token Latency ({self.latency_units}):\t{self.first_token_latency}\n"
             f"Token-to-token Latency ({self.latency_units}):\t{self.time_per_output_token}\n"
             f"Peak GPU Memory Usage ({self.peak_gpu_mem_units}):\t{self.peak_gpu_mem}\n"

@@ -11,6 +11,10 @@ python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_CHANN
 ```
 
 
+使用这个，启用的是 Smooth Quant的 Kernel ， INT8运算
+```bash
+python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_TENSOR_PLUGIN --kv-dtype float16 static --isl 256 --osl 256 --batch 64
+```
 
 
 
