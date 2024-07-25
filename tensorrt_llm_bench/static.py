@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Optional
 
 import click
 from benchmarkers.static import gptSessionBenchmarker
@@ -41,10 +42,14 @@ from utils.dataclasses import BenchmarkConfig, BenchmarkResults
               type=int,
               default=60,
               help="Minimum duration of iteration to measure, in seconds")
+@click.option("--model-config-path", "-mcp",
+              type=click.Path(),
+              default=None,
+              help="Path to model config file")
 @click.pass_obj
 def static_benchmark(benchmark_cfg: BenchmarkConfig, batch: int, isl: int,
                      osl: int, gpt_session_path: Path, warm_up_runs: int,
-                     num_runs: int, duration: int):
+                     num_runs: int, duration: int, model_config_path: Optional[Path]):
     """Run a static benchmark with a fixed batch size, ISL, and OSL."""
 
     benchmark_cfg.max_batch_size = batch
@@ -58,7 +63,7 @@ def static_benchmark(benchmark_cfg: BenchmarkConfig, batch: int, isl: int,
         num_runs,
         duration,
         benchmark_cfg.kv_cache_mem_percentage,
-    )
+    )   
 
     print(f"Building TRT-LLM engine for '{benchmark_cfg.model}'...")
     benchmarker.build()
@@ -68,3 +73,10 @@ def static_benchmark(benchmark_cfg: BenchmarkConfig, batch: int, isl: int,
 
     print(f"JSON: {result.model_dump_json()}")
     print(result.get_summary(benchmarker.config))
+
+    # save results to disk 
+    workspace = benchmark_cfg.workspace
+    model = benchmark_cfg.model
+    results_save_path = os.path.join(workspace,model,"commands.txt")
+    with open(results_save_path,'w') as f:
+        f.write(result.get_summary(benchmarker.config))

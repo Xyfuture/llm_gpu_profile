@@ -17,7 +17,13 @@ python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_TENSO
 ```
 
 
+启用没有Attention的 GPU profile
+```bash
+python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_TENSOR_PLUGIN --kv-dtype float16 static --isl 256 --osl 256 --batch 64 --model_config_path 
 
+```
+
+原生trtllm-build指令
 
 ```bash
 trtllm-build 

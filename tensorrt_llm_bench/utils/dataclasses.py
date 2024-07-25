@@ -179,7 +179,8 @@ class BenchmarkConfig(BaseModel):
     def engine_path(self) -> Path:
         """Path to the engine workspace."""
         if self.model in get_args(VALID_MODELS):
-            return Path(self.workspace.absolute(), self.model.lower())
+            # return Path(self.workspace.absolute(), self.model.lower())
+            return Path(self.workspace.absolute(),self.model)
         else:
             return Path(self.workspace.absolute(), "engine")
 

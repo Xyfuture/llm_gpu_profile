@@ -256,6 +256,7 @@ class TRTLLMConfig(BaseModel):
     # def from_nemo_config (self, nemo_model_name)
 
     def to_json(self, output_dir):
+        os.makedirs(output_dir, exist_ok=True)
         with open(os.path.join(output_dir, "generated_config.json"), "w") as f:
             json.dump(self.model_dump(), f, indent=4)
 

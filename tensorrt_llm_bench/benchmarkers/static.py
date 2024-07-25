@@ -1,7 +1,8 @@
 import platform
 from pathlib import Path
 from subprocess import CompletedProcess
-from typing import Dict, List
+from typing import Dict, List, Optional
+import os 
 
 from utils import command_logger, process_error_check, run_process
 from utils.dataclasses import BenchmarkConfig, BenchmarkResults
@@ -22,6 +23,7 @@ class gptSessionBenchmarker:
         num_runs: int,
         duration: int,
         kv_cache_free_fraction: float = .9,
+        model_config_path: Optional[Path] = None
     ):
         """Initialize a gptSessionBenchmark instance.
 
@@ -45,6 +47,7 @@ class gptSessionBenchmarker:
         self.duration = duration
         self.kv_cache_mem = kv_cache_free_fraction
         self.result = None
+        self.model_config_path = model_config_path
 
     def get_build_command(self) -> List[str]:
         """Build the engine command for TRT-LLM.
@@ -63,13 +66,21 @@ class gptSessionBenchmarker:
         max_isl = self.input_length
         max_osl = self.output_length
         workspace = self.config.workspace
+        model_config_path = self.model_config_path
 
         # Generate the TRT-LLM Configuration file using the dataclass
         # NOTE: This method does not use weights.
-        trtllm_config = TRTLLMConfig.from_hf(model, tp, pp, dtype, quant_algo,
-                                             kv_dtype.value)
+        if model_config_path:
+            # 读取本地的config file
+            trtllm_config = TRTLLMConfig.from_hf(model_config_path, tp, pp, dtype, quant_algo,
+                                                 kv_dtype.value)
+        else:
+            # 读取远程的config
+            trtllm_config = TRTLLMConfig.from_hf(model, tp, pp, dtype, quant_algo,
+                                                 kv_dtype.value)
         # Write the generated configuration file to the benchmark workspace.
-        trtllm_config.to_json(workspace)
+        trtllm_config_path = os.path.join(workspace,model)
+        trtllm_config.to_json(trtllm_config_path)
 
         # Return the full command for building TRT-LLM via subprocess call.
         cmd = [
@@ -77,7 +88,7 @@ class gptSessionBenchmarker:
             "--output_dir",
             output_dir,
             "--model_config",
-            Path(workspace, "generated_config.json"),
+            Path(trtllm_config_path, "generated_config.json"),
             "--workers",
             self.config.world_size,
             # Define the maximums the engine can accept.

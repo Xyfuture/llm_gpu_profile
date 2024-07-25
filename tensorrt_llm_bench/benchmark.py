@@ -52,7 +52,7 @@ from utils.dataclasses import BenchmarkConfig
     "-w",
     required=False,
     type=click.Path(writable=True, readable=True),
-    default="/tmp",
+    default="/home/wangxinyu/benchmark",
     help="The directory to store benchmarking intermediate files.",
 )
 @click.option(
