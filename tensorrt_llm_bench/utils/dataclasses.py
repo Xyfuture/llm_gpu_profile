@@ -130,9 +130,9 @@ class BenchmarkConfig(BaseModel):
             return value
 
         path = Path(value)
-        config = AutoConfig.from_pretrained(str(path.absolute()))
-        for arch in config.architectures:
-            _ = ModelArchitecture(arch)
+        # config = AutoConfig.from_pretrained(str(path.absolute()))
+        # for arch in config.architectures:
+        #     _ = ModelArchitecture(arch)
 
         return path
 

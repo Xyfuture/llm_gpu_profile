@@ -72,7 +72,7 @@ class gptSessionBenchmarker:
         # NOTE: This method does not use weights.
         if model_config_path:
             # 读取本地的config file
-            trtllm_config = TRTLLMConfig.from_hf(model_config_path, tp, pp, dtype, quant_algo,
+            trtllm_config = TRTLLMConfig.from_json(model_config_path, tp, pp, dtype, quant_algo,
                                                  kv_dtype.value)
         else:
             # 读取远程的config

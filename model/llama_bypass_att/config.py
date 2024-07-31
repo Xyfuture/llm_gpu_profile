@@ -26,7 +26,7 @@ from ...mapping import Mapping
 from ..modeling_utils import PretrainedConfig, QuantConfig
 
 
-class LLaMAConfig(PretrainedConfig):
+class LLaMABypassAttConfig(PretrainedConfig):
 
     def __init__(self,
                  *,

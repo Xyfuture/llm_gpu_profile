@@ -19,9 +19,19 @@ python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_TENSO
 
 启用没有Attention的 GPU profile
 ```bash
-python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_TENSOR_PLUGIN --kv-dtype float16 static --isl 256 --osl 256 --batch 64 --model_config_path 
+python benchmark.py --model meta/llama-7b-no-att --quantization W8A8_SQ_PER_TENSOR_PLUGIN static --isl 256 --osl 256 --batch 64 --model_config_path /workspaces/llm_gpu_profile/model_configs/llama_bypass_att_7b_config.json
 
 ```
+
+
+启用没attention的 GPU profile
+```bash
+python benchmark.py --model meta/llama-7b-no-att --quantization W8A8_SQ_PER_TENSOR_PLUGIN static --isl 256 --osl 256 --batch 64 --model-config-path /workspaces/llm_gpu_profile/model_configs/llama_bypass_att_7b_config.json
+```
+
+抽象bug ，generated_config中有个rotary_base参数设不上，会导致trtllm-build失败，需要通过该trtllm_config.py 实现设置
+
+
 
 原生trtllm-build指令
 

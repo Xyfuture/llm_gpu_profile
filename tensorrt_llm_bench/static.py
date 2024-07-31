@@ -63,6 +63,7 @@ def static_benchmark(benchmark_cfg: BenchmarkConfig, batch: int, isl: int,
         num_runs,
         duration,
         benchmark_cfg.kv_cache_mem_percentage,
+        model_config_path
     )   
 
     print(f"Building TRT-LLM engine for '{benchmark_cfg.model}'...")

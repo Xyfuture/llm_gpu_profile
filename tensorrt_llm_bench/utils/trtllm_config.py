@@ -126,7 +126,7 @@ class TRTLLMConfig(BaseModel):
     moe_top_k: Optional[int] = Field(
         default=0, validation_alias=AliasChoices("num_experts_per_tok"))
     rotary_base: Optional[float] = Field(
-        default=None, validation_alias=AliasChoices("rope_theta"))
+        default=10000.0, validation_alias=AliasChoices("rope_theta"))
 
     mapping: TRTLLM_Mapping
     quantization: TRTLLM_Quantization

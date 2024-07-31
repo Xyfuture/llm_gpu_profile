@@ -37,7 +37,7 @@ from ...quantization import QuantAlgo
 from ..convert_utils import (iterate_shard_files, load_calib_dataset,
                              load_state_dict, retrieved_layer_index_from_name)
 from ..modeling_utils import PretrainedConfig
-from .config import LLaMAConfig
+from .config import LLaMABypassAttConfig
 
 
 def generate_int8(weights, act_range, is_qkv=False, multi_query_mode=False):
@@ -664,7 +664,7 @@ def load_hf_llama(model_dir: str, load_model_on_cpu: bool = False):
 
 
 def load_weights_from_hf_model(hf_model,
-                               config: LLaMAConfig,
+                               config: LLaMABypassAttConfig,
                                act_range: Optional[dict] = None,
                                qkv_para: Optional[dict] = None,
                                smoother: Optional[dict] = None):
@@ -1200,7 +1200,7 @@ def smooth_quant(model,
 
 def quantize(hf_model_dir: str,
              output_dir: str,
-             config: LLaMAConfig,
+             config: LLaMABypassAttConfig,
              calib_dataset='cnn_dailymail'):
     '''
         Quantize the save the model as TRT-LLM checkpoint to output_dir
@@ -1326,7 +1326,7 @@ class QkvWeightHelper:
         return fused_qkv
 
 
-def load_weights_from_hf_by_shard(model_dir: str, config: LLaMAConfig):
+def load_weights_from_hf_by_shard(model_dir: str, config: LLaMABypassAttConfig):
     '''Weights-only quantization is the only supported quantization recipe here.'''
     logger.info('Loading weights from HF LLaMA...')
     quant_algo = config.quantization.quant_algo
@@ -1497,7 +1497,7 @@ def load_weights_from_hf_by_shard(model_dir: str, config: LLaMAConfig):
     return weights
 
 
-def load_weights_from_hf_safetensors(model_dir: str, config: LLaMAConfig):
+def load_weights_from_hf_safetensors(model_dir: str, config: LLaMABypassAttConfig):
     logger.info('Loading weights from Huggingface LLaMA safetensors...')
     tik = time.time()
     import json
@@ -1716,7 +1716,7 @@ def load_weights_from_hf_safetensors(model_dir: str, config: LLaMAConfig):
     return weights
 
 
-def load_weights_from_gptq(quant_ckpt_path: str, config: LLaMAConfig):
+def load_weights_from_gptq(quant_ckpt_path: str, config: LLaMABypassAttConfig):
     logger.info('Loading weights from groupwise GPTQ LLaMA safetensors...')
     weights = {}
     tik = time.time()
@@ -1902,7 +1902,7 @@ def load_weights_from_gptq(quant_ckpt_path: str, config: LLaMAConfig):
     return weights
 
 
-def load_weights_from_meta_ckpt(meta_ckpt_dir: str, config: LLaMAConfig):
+def load_weights_from_meta_ckpt(meta_ckpt_dir: str, config: LLaMABypassAttConfig):
     torch_dtype = str_dtype_to_torch(config.dtype)
     mapping = config.mapping
     weights = {}

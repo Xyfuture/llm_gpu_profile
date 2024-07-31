@@ -28,16 +28,16 @@ from ..convert_utils import has_safetensors
 from ..modeling_utils import (DecoderLayerList, DecoderModelForCausalLM,
                               QuantConfig, check_share_embedding)
 from .bypass_attention import BypassAttention
-from .config import LLaMAConfig
-from .convert import (load_hf_llama, load_weights_from_hf_by_shard,
-                      load_weights_from_hf_model,
-                      load_weights_from_hf_safetensors,
-                      load_weights_from_meta_ckpt)
+from .config import LLaMABypassAttConfig
+# from .convert import (load_hf_llama, load_weights_from_hf_by_shard,
+#                       load_weights_from_hf_model,
+#                       load_weights_from_hf_safetensors,
+#                       load_weights_from_meta_ckpt)
 
 
-class LLaMADecoderLayer(Module):
+class LLaMABypassAttDecoderLayer(Module):
 
-    def __init__(self, config: LLaMAConfig, layer_idx: int):
+    def __init__(self, config: LLaMABypassAttConfig, layer_idx: int):
         super().__init__()
         self.layer_idx = layer_idx
         self.config = config
@@ -196,9 +196,9 @@ class LLaMADecoderLayer(Module):
         return hidden_states
 
 
-class LLaMAModel(Module):
+class LLaMABypassAttModel(Module):
 
-    def __init__(self, config: LLaMAConfig) -> None:
+    def __init__(self, config: LLaMABypassAttConfig) -> None:
         super().__init__()
 
         self.mapping = config.mapping
@@ -207,7 +207,7 @@ class LLaMAModel(Module):
                                              config.hidden_size,
                                              dtype=config.dtype)
 
-        self.layers = DecoderLayerList(LLaMADecoderLayer, config)
+        self.layers = DecoderLayerList(LLaMABypassAttDecoderLayer, config)
 
         if self.mapping.is_last_pp_rank():
             self.ln_f = RmsNorm(normalized_shape=config.hidden_size,
@@ -259,11 +259,11 @@ class LLaMAModel(Module):
         return hidden_states
 
 
-class LLaMAForCausalLM(DecoderModelForCausalLM):
-    config_class = LLaMAConfig
+class LLaMABypassAttForCausalLM(DecoderModelForCausalLM):
+    config_class = LLaMABypassAttConfig
 
-    def __init__(self, config: LLaMAConfig):
-        transformer = LLaMAModel(config)
+    def __init__(self, config: LLaMABypassAttConfig):
+        transformer = LLaMABypassAttModel(config)
         vocab_size_padded = pad_vocab_size(config.vocab_size,
                                            config.mapping.tp_size)
         if config.mapping.is_last_pp_rank():
@@ -280,53 +280,53 @@ class LLaMAForCausalLM(DecoderModelForCausalLM):
         self.mapping = config.mapping
         super().__init__(config, transformer, lm_head)
 
-    @classmethod
-    def from_hugging_face(
-            cls,
-            hf_model_or_dir: Union[str, 'transformers.PreTrainedModel'],
-            dtype: str = 'auto',
-            mapping: Optional[Mapping] = None,
-            quant_config: Optional[QuantConfig] = None,
-            **kwargs):
-        ''' Create a LLaMAForCausalLM object from give parameters
-        '''
-        import transformers
+    # @classmethod
+    # def from_hugging_face(
+    #         cls,
+    #         hf_model_or_dir: Union[str, 'transformers.PreTrainedModel'],
+    #         dtype: str = 'auto',
+    #         mapping: Optional[Mapping] = None,
+    #         quant_config: Optional[QuantConfig] = None,
+    #         **kwargs):
+    #     ''' Create a LLaMAForCausalLM object from give parameters
+    #     '''
+    #     import transformers
 
-        load_by_shard = kwargs.pop('load_by_shard', False)
-        load_model_on_cpu = kwargs.pop('load_model_on_cpu', False)
+    #     load_by_shard = kwargs.pop('load_by_shard', False)
+    #     load_model_on_cpu = kwargs.pop('load_model_on_cpu', False)
 
-        assert hf_model_or_dir is not None
-        use_preloading = isinstance(hf_model_or_dir,
-                                    transformers.PreTrainedModel)
-        if use_preloading:
-            hf_model = hf_model_or_dir
-            hf_config_or_dir = hf_model.config
-        else:
-            hf_model_dir = hf_model_or_dir
-            hf_config_or_dir = hf_model_or_dir
+    #     assert hf_model_or_dir is not None
+    #     use_preloading = isinstance(hf_model_or_dir,
+    #                                 transformers.PreTrainedModel)
+    #     if use_preloading:
+    #         hf_model = hf_model_or_dir
+    #         hf_config_or_dir = hf_model.config
+    #     else:
+    #         hf_model_dir = hf_model_or_dir
+    #         hf_config_or_dir = hf_model_or_dir
 
-        config = LLaMAConfig.from_hugging_face(hf_config_or_dir,
-                                               dtype=dtype,
-                                               mapping=mapping,
-                                               quant_config=quant_config,
-                                               **kwargs)
+    #     config = LLaMABypassAttConfig.from_hugging_face(hf_config_or_dir,
+    #                                            dtype=dtype,
+    #                                            mapping=mapping,
+    #                                            quant_config=quant_config,
+    #                                            **kwargs)
 
-        if use_preloading:
-            assert not load_by_shard
-            weights = load_weights_from_hf_model(hf_model, config)
-        elif load_by_shard:
-            weights = load_weights_from_hf_by_shard(hf_model_dir, config)
-        elif has_safetensors(
-                hf_model_dir) and not config.quant_mode.has_any_quant():
-            weights = load_weights_from_hf_safetensors(hf_model_dir, config)
-        else:
-            hf_model = load_hf_llama(hf_model_dir, load_model_on_cpu)
-            weights = load_weights_from_hf_model(hf_model, config)
+    #     if use_preloading:
+    #         assert not load_by_shard
+    #         weights = load_weights_from_hf_model(hf_model, config)
+    #     elif load_by_shard:
+    #         weights = load_weights_from_hf_by_shard(hf_model_dir, config)
+    #     elif has_safetensors(
+    #             hf_model_dir) and not config.quant_mode.has_any_quant():
+    #         weights = load_weights_from_hf_safetensors(hf_model_dir, config)
+    #     else:
+    #         hf_model = load_hf_llama(hf_model_dir, load_model_on_cpu)
+    #         weights = load_weights_from_hf_model(hf_model, config)
 
-        check_share_embedding(weights, config)
-        model = LLaMAForCausalLM(config)
-        model.load(weights)
-        return model
+    #     check_share_embedding(weights, config)
+    #     model = LLaMABypassAttForCausalLM(config)
+    #     model.load(weights)
+    #     return model
 
     def default_plugin_config(self, **kwargs):
         plugin_config = super().default_plugin_config(**kwargs)
@@ -334,25 +334,25 @@ class LLaMAForCausalLM(DecoderModelForCausalLM):
             plugin_config.weight_only_groupwise_quant_matmul_plugin = 'auto'
         return plugin_config
 
-    @classmethod
-    def from_meta_ckpt(cls,
-                       meta_ckpt_dir: str,
-                       dtype: str = 'auto',
-                       mapping: Optional[Mapping] = None,
-                       quant_config: Optional[QuantConfig] = None,
-                       **kwargs):
-        config = LLaMAConfig.from_meta_ckpt(meta_ckpt_dir,
-                                            dtype=dtype,
-                                            mapping=mapping,
-                                            quant_config=quant_config,
-                                            **kwargs)
+    # @classmethod
+    # def from_meta_ckpt(cls,
+    #                    meta_ckpt_dir: str,
+    #                    dtype: str = 'auto',
+    #                    mapping: Optional[Mapping] = None,
+    #                    quant_config: Optional[QuantConfig] = None,
+    #                    **kwargs):
+    #     config = LLaMABypassAttConfig.from_meta_ckpt(meta_ckpt_dir,
+    #                                         dtype=dtype,
+    #                                         mapping=mapping,
+    #                                         quant_config=quant_config,
+    #                                         **kwargs)
 
-        weights = load_weights_from_meta_ckpt(meta_ckpt_dir, config)
+    #     weights = load_weights_from_meta_ckpt(meta_ckpt_dir, config)
 
-        check_share_embedding(weights, config)
-        model = LLaMAForCausalLM(config)
-        model.load(weights)
-        return model
+    #     check_share_embedding(weights, config)
+    #     model = LLaMABypassAttForCausalLM(config)
+    #     model.load(weights)
+    #     return model
 
     @classmethod
     def quantize(
@@ -375,7 +375,7 @@ class LLaMAForCausalLM(DecoderModelForCausalLM):
             QuantAlgo.W4A16_AWQ, QuantAlgo.FP8, QuantAlgo.W8A8_SQ_PER_CHANNEL,
             QuantAlgo.W4A8_AWQ
         ]
-        config = LLaMAConfig.from_hugging_face(hf_model_dir,
+        config = LLaMABypassAttConfig.from_hugging_face(hf_model_dir,
                                                dtype=dtype,
                                                mapping=mapping,
                                                quant_config=quant_config,
