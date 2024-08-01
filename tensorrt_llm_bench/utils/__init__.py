@@ -9,7 +9,10 @@ from tensorrt_llm.quantization.mode import QuantAlgo
 VALID_MODELS = Literal["tiiuae/falcon-7b", "tiiuae/falcon-40b",
                        "tiiuae/falcon-180B", "meta-llama/Llama-2-7b-hf",
                        "meta-llama/Llama-2-13b-hf", "meta-llama/Llama-2-70b-hf",
-                       "EleutherAI/gpt-j-6b", "chargoddard/llama-2-34b-uncode"]
+                       "EleutherAI/gpt-j-6b", "chargoddard/llama-2-34b-uncode",
+                       # custom
+                       "meta/llama-7b-no-att","meta/llama-13b-no-att","meta/llama-34b-no-att",
+                       "meta/llama-70b-no-att"]
 VALID_COMPUTE_DTYPES = Literal["float16", "bfloat16"]
 VALID_CACHE_DTYPES = Literal["float16", "float8", "int8"]
 VALID_QUANT_ALGOS = Literal["None", f"{QuantAlgo.W8A16}", f"{QuantAlgo.W4A16}",

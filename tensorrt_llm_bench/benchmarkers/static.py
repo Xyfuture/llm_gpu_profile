@@ -208,7 +208,7 @@ class gptSessionBenchmarker:
             inflight_batching=False,
             total_latency=results[0][8],
             first_token_latency=ttft,
-            time_per_output_token=gen_time / (total_out - batch_size),
+            time_per_output_token=gen_time / (total_out - batch_size) / batch_size,
             latency_units="ms",
             throughput=results[0][10],
             throughput_units="tokens/second",

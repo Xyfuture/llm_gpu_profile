@@ -17,11 +17,11 @@ python benchmark.py --model EleutherAI/gpt-j-6b --quantization W8A8_SQ_PER_TENSO
 ```
 
 
-启用没有Attention的 GPU profile
+<!-- 启用没有Attention的 GPU profile
 ```bash
-python benchmark.py --model meta/llama-7b-no-att --quantization W8A8_SQ_PER_TENSOR_PLUGIN static --isl 256 --osl 256 --batch 64 --model_config_path /workspaces/llm_gpu_profile/model_configs/llama_bypass_att_7b_config.json
+python benchmark.py --model meta/llama-7b-no-att --quantization W8A8_SQ_PER_TENSOR_PLUGIN static --isl 256 --osl 256 --batch 64 --model-config-path /workspaces/llm_gpu_profile/model_configs/llama_bypass_att_7b_config.json
 
-```
+``` -->
 
 
 启用没attention的 GPU profile
@@ -58,3 +58,16 @@ hugging face models
 - [`meta-llama/Llama-2-13b-hf`](https://huggingface.co/meta-llama/Llama-2-13b-hf)
 - [`meta-llama/Llama-2-70b-hf`](https://huggingface.co/meta-llama/Llama-2-70b-hf)
 
+
+
+# 实验设置
+## batch size 
+
+
+
+## Normal Llama
+```bash
+python benchmark.py --model meta-llama/Llama-2-7b-hf --quantization W8A8_SQ_PER_TENSOR_PLUGIN --kv-dtype float16 static --isl 256 --osl 256 --batch 64
+
+
+```
